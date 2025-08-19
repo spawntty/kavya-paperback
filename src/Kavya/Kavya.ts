@@ -263,7 +263,7 @@ export class Kavya implements ChapterProviding, HomePageSectionsProviding, Manga
 		// We won't use `await this.getKavitaAPI()` as we do not want to throw an error on
 		// the homepage when server settings are not set
 		const kavitaAPI = await getKavitaAPI(this.stateManager);
-		const { showOnDeck, showRecentlyUpdated, showNewlyAdded, excludeUnsupportedLibrary } = await getOptions(this.stateManager);
+		const { showOnDeck, showRecentlyUpdated, showNewlyAdded, showReadingLists, excludeUnsupportedLibrary } = await getOptions(this.stateManager);
 		const pageSize = (await getOptions(this.stateManager)).pageSize / 2;
 
 		// The source define two homepage sections: new and latest
@@ -291,6 +291,16 @@ export class Kavya implements ChapterProviding, HomePageSectionsProviding, Manga
 			sections.push(App.createHomeSection({
 				id: 'newlyadded',
 				title: 'Newly Added Series',
+				containsMoreItems: false,
+				type: 'singleRowNormal'
+			}));
+		}
+
+		/* Reading Lists */
+		if(showReadingLists){
+			sections.push(App.createHomeSection({
+				id:'readinglists',
+				title: 'Reading Lists',
 				containsMoreItems: false,
 				type: 'singleRowNormal'
 			}));
@@ -327,7 +337,7 @@ export class Kavya implements ChapterProviding, HomePageSectionsProviding, Manga
 		}
 
 		for (const section of sections) {
-			let apiPath: string, body: any = {}, id: string = 'id', title: string = 'name';
+			let apiPath: string, body: any = {}, id: string = 'id', title: string = 'name', isReadingList: boolean = false;
 			switch (section.id) {
 				case 'ondeck':
 					apiPath = `${kavitaAPI.url}/Series/on-deck?PageNumber=1&PageSize=${pageSize}`;
@@ -338,6 +348,11 @@ export class Kavya implements ChapterProviding, HomePageSectionsProviding, Manga
 					break;
 				case 'newlyadded':
 					apiPath = `${kavitaAPI.url}/Series/recently-added-v2?PageNumber=1&PageSize=${pageSize}`;
+					break;
+				case 'readinglists':
+					apiPath = `${kavitaAPI.url}/ReadingList/lists`;
+					title = 'title';
+					isReadingList = true;
 					break;
 				default:
 					apiPath = `${kavitaAPI.url}/Series/v2?PageNumber=1&PageSize=${pageSize}`;
@@ -366,12 +381,22 @@ export class Kavya implements ChapterProviding, HomePageSectionsProviding, Manga
 					
 					for (const series of result) {
 						if (excludeUnsupportedLibrary && excludeLibraryIds.includes(series.libraryId)) continue;
-						tiles.push(App.createPartialSourceManga({
-							title: series[title],
-							image: `${kavitaAPI.url}/image/series-cover?seriesId=${series[id]}&apiKey=${kavitaAPI.key}`,
-							mangaId: `${series[id]}`,
-							subtitle: undefined
-						}));
+
+						if (isReadingList) {
+							tiles.push(App.createPartialSourceManga({
+								title: series[title],
+								image: `${kavitaAPI.url}/Image/readinglist-cover?readingListId=${series[id]}&apiKey=${kavitaAPI.key}`,
+								mangaId: `rl-${series[id]}`,
+								subtitle: undefined
+							}));
+						} else {
+							tiles.push(App.createPartialSourceManga({
+								title: series[title],
+								image: `${kavitaAPI.url}/image/series-cover?seriesId=${series[id]}&apiKey=${kavitaAPI.key}`,
+								mangaId: `${series[id]}`,
+								subtitle: undefined
+							}));
+						}
 					}
 					
 					section.items = tiles;
