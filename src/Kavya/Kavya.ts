@@ -113,22 +113,17 @@ export class Kavya implements ChapterProviding, HomePageSectionsProviding, Manga
 			const response = await this.requestManager.schedule(request, 1);
 			const result = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
 
-			let i = 0;
-			let j = 1;
-
 			for (const rlItem of result) {
 				const progress: string = rlItem.pagesRead === 0 ? '' : rlItem.pagesTotal === rlItem.pagesRead ? '· Read' : `· Reading ${rlItem.pagesRead} page`;
 				
 				const item: any = {
 					id: `${rlItem.chapterId}`,
 					mangaId: rlItem.seriesId,
-					chapNum: rlItem.chapterNumber === '-100000' ? 1 : (rlItem.isSpecial ? j++ : parseFloat(rlItem.chapterNumber)), // chapter.number is 0 when it's a special
-					name: rlItem.seriesName, // Since a Reading List is composed by various series, the serie name will be printed here instead of the chapter name
+					chapNum: rlItem.order + 1,
+					name: `${rlItem.seriesName} - Issue ${rlItem.chapterNumber}`,
 					time: new Date(rlItem.releaseDate),
-					volume: rlItem.isSpecial ? 0 : rlItem.volumeNumber === '-100000' ? 0 : parseFloat(rlItem.volumeNumber) , // assign both special and chapters w/o volumes w/ volume 0 as it's hidden by paperback
 					group: `${(rlItem.isSpecial ? 'Specials · ' : '')}${rlItem.pagesTotal} pages ${progress}`,
-					_index: i++,
-					// sortIndex is unused, as it seems to have an issue when changing the sort order
+					_index: rlItem.order,
 				};
 				
 				if (rlItem.isSpecial) specials.push(item);
