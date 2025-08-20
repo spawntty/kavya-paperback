@@ -120,7 +120,7 @@ export class Kavya implements ChapterProviding, HomePageSectionsProviding, Manga
 					id: `${rlItem.chapterId}`,
 					mangaId: rlItem.seriesId,
 					chapNum: rlItem.order + 1,
-					name: `${rlItem.seriesName} - Issue ${rlItem.chapterNumber}`,
+					name: `${rlItem.seriesName} #${rlItem.chapterNumber}`,
 					time: new Date(rlItem.releaseDate),
 					group: `${(rlItem.isSpecial ? 'Specials · ' : '')}${rlItem.pagesTotal} pages ${progress}`,
 					_index: rlItem.order,
