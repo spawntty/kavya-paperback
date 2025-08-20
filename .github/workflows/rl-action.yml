@@ -6,10 +6,10 @@ on:
       types: [closed]
       branches:
           - readinglists-action
-name: Bundle and Publish Sources
+name: Bundle and Publish Sources (Reading Lists)
 jobs:
   build:
-    name: Bundle and Publish Sources
+    name: Bundle and Publish Sources (Reading Lists)
     runs-on: ubuntu-latest
 
     strategy:
