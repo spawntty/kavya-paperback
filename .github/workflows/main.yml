@@ -1,11 +1,11 @@
 on:
   push:
     branches:
-      - main
+      - readinglists-action
   pull_request:
       types: [closed]
       branches:
-          - main
+          - readinglists-action
 name: Bundle and Publish Sources
 jobs:
   build:
@@ -14,13 +14,14 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [18.x]
 
     steps:
       - name: Checkout Branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
+
       - name: Setup Node.js environment
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
